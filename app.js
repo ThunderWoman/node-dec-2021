@@ -1,52 +1,17 @@
-const fs = require('fs/promises');
-const path = require('path');
+const express = require('express');
 
-const sortFolder = async (read, gender, write) => {
-    try {
-        const files = await fs.readdir(path.join(__dirname, read));
+const { userRouter } = require('./routes');
+const { constants } = require('./configs');
 
-        for (const file of files) {
-            const redFolderPath = path.join(__dirname, read, file);
-            const data = await fs.readFile(redFolderPath);
-            const user = JSON.parse(data.toString());
+const app = express();
+app.use(express.json());
 
-            if (user.gender === gender) {
-                await fs.rename(redFolderPath, path.join(__dirname, write, file));
-            }
-        }
-    }catch (e) {
-        console.error(e);
-    }
-}
+    app.use('/users', userRouter);
 
-sortFolder('girls', 'male', 'boys');
-sortFolder('boys', 'female', 'girls');
+    app.use('*', (req, res) => {
+        res.status(404).json('Page not found');
+    });
 
-
-
-// const fs = require('fs');
-// const path = require('path');
-//
-// const sortFolder = (read, gender, write) => {
-//   fs.readdir(path.join(__dirname, read), (err, files) => {
-//     if (err) return console.log(err);
-//
-//     files.forEach((file) => {
-//       const redFolderPath = path.join(__dirname, read, file)
-//       fs.readFile(redFolderPath, (err, data) => {
-//         if (err) return console.log(err);
-//
-//         const user = JSON.parse(data.toString());
-//
-//         if(user.gender === gender) {
-//           fs.rename(redFolderPath, path.join(__dirname, write, file), (err) => {
-//             if (err) return console.log(err);
-//           });
-//         }
-//       });
-//     });
-//   });
-// }
-//
-// sortFolder('girls', 'male', 'boys');
-// sortFolder('boys', 'female', 'girls');
+        app.listen(constants.PORT, () => {
+            console.log(`Started on port ${constants.PORT}`);
+        });
