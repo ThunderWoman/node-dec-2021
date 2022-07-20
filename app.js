@@ -1,11 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const expressFileUpload = require('express-fileupload');
+const swaggerUi = require('swagger-ui-express');
+
 const path = require('path');
 require('dotenv').config({ path: path.join(process.cwd(), 'environments', `${process.env.MODE}.env`)})
 
 const { authRouter, userRouter } = require('./routes');
 const { configs } = require('./configs');
+const swaggerJson = require("./swagger.json");
+
 
 mongoose.connect(configs.MONGO_URL);
 
@@ -17,6 +21,8 @@ app.use(expressFileUpload());
 app.use('/ping', (req, res) => res.json('PONG'));
 app.use('/auth', authRouter);
 app.use('/users', userRouter);
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerJson));
+
 
 app.use('*', (req, res) => {
     res.status(404).json('Route not found');

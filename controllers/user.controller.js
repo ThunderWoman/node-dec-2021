@@ -2,15 +2,16 @@ const { userService, passwordService, emailService, smsService, s3Service } = re
 const { userPresenter } = require('../presenters/user.presenter');
 const { emailActionTypeEnum, smsActionTypeEnum } = require('../enums');
 const { smsTemplateBuilder } = require('../common');
+const userService = require("../services/user.service");
 
 module.exports = {
     findUsers: async (req, res, next) => {
         try {
-            const users = await userService.findUsers(req.query).exec();
+            const paginationResponse = await userService.getUsersWithPagination(req.query);
 
             const usersForResponse = users.map(u => userPresenter(u));
 
-            res.json(usersForResponse);
+            res.json(paginationResponse);
         } catch (e) {
             next(e);
         }
